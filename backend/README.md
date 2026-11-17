@@ -1,24 +1,51 @@
-# README
+# ContractIQ Backend
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Rails API-only backend for ContractIQ, aligned with the repository SRS.
 
-Things you may want to cover:
+## Requirements
 
-* Ruby version
+- Ruby version in `.ruby-version`
+- PostgreSQL 18 (or compatible)
+- Redis 7+
+- Bundler
 
-* System dependencies
+## Setup (PowerShell)
 
-* Configuration
+From repository root:
 
-* Database creation
+```powershell
+cd backend
+bundle install
+$env:DATABASE_URL = "postgresql://postgres:YOUR_PASSWORD@localhost:5432/contractiq_development"
+$env:REDIS_URL = "redis://localhost:6379/0"
+bin/rails db:prepare
+bin/rails server
+```
 
-* Database initialization
+Run Sidekiq in another terminal:
 
-* How to run the test suite
+```powershell
+cd backend
+$env:REDIS_URL = "redis://localhost:6379/0"
+bundle exec sidekiq
+```
 
-* Services (job queues, cache servers, search engines, etc.)
+Never commit real passwords or tokens.
 
-* Deployment instructions
+## API
 
-* ...
+All routes use `/api/v1`. Authentication uses a 24-hour HS256 bearer token.
+
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `DELETE /api/v1/auth/logout`
+- `GET|POST /api/v1/workspaces`
+- `GET /api/v1/workspaces/:id`
+- `GET|POST /api/v1/workspaces/:workspace_id/projects`
+- `GET|POST /api/v1/projects/:project_id/services`
+
+Send `Authorization: Bearer <token>`.
+
+## Implementation status
+
+This branch establishes the backend foundation: authentication, workspace membership, projects, API services, and initial analysis data models. Specification upload/validation, semantic comparison, Sidekiq workers, full RBAC policy enforcement, and RSpec coverage remain follow-up work. Do not treat the SRS MVP acceptance criteria as complete yet.
